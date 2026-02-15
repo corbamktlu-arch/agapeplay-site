@@ -71,17 +71,6 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Barra superior */}
-      <div className="bg-primary/10 border-b border-primary/20 text-center py-2 px-4 text-sm text-primary font-medium fixed top-0 left-0 right-0 z-50">
-        🎵 Solicite uma demonstração gratuita —{" "}
-        <button
-          onClick={() => handleNav("contato")}
-          className="underline hover:no-underline"
-        >
-          Fale conosco
-        </button>
-      </div>
-
       {/* Navbar */}
       <nav
         className={`fixed top-8 left-0 right-0 z-40 transition-all duration-300 ${
