@@ -73,36 +73,74 @@ export default function Navbar() {
     <>
       {/* Navbar */}
       <nav
-        className={`fixed top-8 left-0 right-0 z-40 transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
           scrolled
             ? "bg-background/90 backdrop-blur-xl border-b border-border shadow-lg"
-            : "bg-transparent"
+            : "bg-background/40 backdrop-blur-xl"
         }`}
       >
-        <div className="container mx-auto flex items-center justify-between h-16 px-4">
+        <div className="container mx-auto flex items-center h-16 px-4 gap-4">
+          {/* Logo */}
           <button
-  onClick={() => handleNav("hero")}
-  className="flex items-center gap-3"
-  aria-label="Ir para o início"
->
-  <img
-    src={apLogo}
-    alt="ÁgapePlay"
-    className="
-      h-9 w-9 rounded-xl
-      drop-shadow-[0_0_12px_rgba(56,189,248,0.45)]
-      transition
-      hover:scale-105
-    "
-  />
-  <span className="text-xl font-bold gradient-text tracking-tight">
-    ÁgapePlay
-  </span>
-</button>
+            onClick={() => handleNav("hero")}
+            className="flex items-center gap-3 shrink-0"
+            aria-label="Ir para o início"
+          >
+            <img
+              src={apLogo}
+              alt="ÁgapePlay"
+              className="
+                h-12 w-12 md:h-9 md:w-9 rounded-xl
+                drop-shadow-[0_0_12px_rgba(56,189,248,0.45)]
+                transition
+                hover:scale-105
+              "
+            />
+            <span className="text-lg md:text-xl font-bold gradient-text tracking-tight">
+              ÁgapePlay
+            </span>
+          </button>
 
+          {/* Marquee no meio (loop perfeito sem buraco) */}
+          <div
+            className="hidden md:flex flex-1 items-center overflow-hidden pointer-events-none"
+            style={{
+              maskImage:
+                "linear-gradient(to right, transparent, black 10%, black 90%, transparent)",
+              WebkitMaskImage:
+                "linear-gradient(to right, transparent, black 10%, black 90%, transparent)",
+            }}
+          >
+            <div className="marquee-track flex items-center gap-6 text-xs font-medium text-primary/90">
+              {/* BLOCO 1 */}
+              <div className="flex items-center gap-6 shrink-0">
+                <span>Mais de 500 mil músicas</span>
+                <span className="opacity-40">•</span>
+                <span>Forró • Axé • Gospel • Rap • Sertanejo • Pop • Rock</span>
+                <span className="opacity-40">•</span>
+                <span>Playlists curadas e atualização constante</span>
+                <span className="opacity-40">•</span>
+                <span>Rádio indoor profissional para negócios</span>
+              </div>
+
+              {/* BLOCO 2 (duplicado real) */}
+              <div className="flex items-center gap-6 shrink-0">
+                <span>Mais de 500 mil músicas</span>
+                <span className="opacity-40">•</span>
+                <span>Forró • Axé • Gospel • Rap • Sertanejo • Pop • Rock</span>
+                <span className="opacity-40">•</span>
+                <span>Playlists curadas e atualização constante</span>
+                <span className="opacity-40">•</span>
+                <span>Rádio indoor profissional para negócios</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Botão menu */}
           <button
-            className="inline-flex items-center justify-center h-10 w-10 rounded-md border border-border bg-background/40 hover:bg-background/70 transition text-foreground"
+            className="inline-flex items-center justify-center h-10 w-10 rounded-md border border-border bg-background/40 hover:bg-background/70 transition text-foreground shrink-0"
             onClick={() => setMenuOpen(true)}
+            aria-label="Abrir menu"
           >
             <Menu size={22} />
           </button>
@@ -114,6 +152,7 @@ export default function Navbar() {
         <button
           className="fixed inset-0 z-50 bg-black/50 backdrop-blur-[2px]"
           onClick={() => setMenuOpen(false)}
+          aria-label="Fechar menu"
         />
       )}
 
@@ -130,6 +169,7 @@ export default function Navbar() {
           <button
             className="inline-flex items-center justify-center h-10 w-10 rounded-md border border-border hover:bg-secondary/40 transition"
             onClick={() => setMenuOpen(false)}
+            aria-label="Fechar"
           >
             <X size={20} />
           </button>
@@ -158,6 +198,19 @@ export default function Navbar() {
           })}
         </div>
       </aside>
+
+      {/* CSS local do marquee (loop perfeito) */}
+      <style>{`
+        .marquee-track {
+          width: max-content;
+          animation: marquee 22s linear infinite;
+        }
+
+        @keyframes marquee {
+          from { transform: translateX(0%); }
+          to { transform: translateX(-100%); }
+        }
+      `}</style>
     </>
   );
 }

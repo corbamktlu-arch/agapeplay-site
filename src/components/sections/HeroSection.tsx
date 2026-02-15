@@ -19,7 +19,7 @@ export default function HeroSection() {
   return (
     <section
       id="hero"
-     className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden"
     >
       {/* Background image */}
       <div className="absolute inset-0 z-0">
@@ -50,10 +50,10 @@ export default function HeroSection() {
           initial={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
           animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
           transition={{ duration: 0.9, delay: 0.1, ease: "easeOut" }}
-          className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-4 flex items-center justify-center overflow-visible"
+          className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-4 flex flex-wrap items-center justify-center gap-4 overflow-visible"
           style={{ lineHeight: 1.3, paddingBottom: "0.15em" }}
         >
-          <span className="music-wave music-wave-left">
+          <span className="music-wave music-wave-left hidden md:inline-flex">
             <span></span>
             <span></span>
             <span></span>
@@ -62,7 +62,7 @@ export default function HeroSection() {
           </span>
 
           {/* Logo + texto */}
-          <div className="flex items-center justify-center gap-6">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6">
             {/* Logo com ondas + partículas */}
             <div className="relative">
               {/* Partículas leves */}
@@ -77,7 +77,10 @@ export default function HeroSection() {
                       width: p.size,
                       height: p.size,
                     }}
-                    animate={{ opacity: [0.12, 0.55, 0.12], scale: [1, 1.35, 1] }}
+                    animate={{
+                      opacity: [0.12, 0.55, 0.12],
+                      scale: [1, 1.35, 1],
+                    }}
                     transition={{
                       duration: 3.2,
                       repeat: Infinity,
@@ -115,7 +118,11 @@ export default function HeroSection() {
                       "radial-gradient(circle, rgba(56,189,248,0.45), rgba(59,130,246,0.18), transparent 70%)",
                   }}
                   animate={{ opacity: [0.35, 0.85, 0.35] }}
-                  transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+                  transition={{
+                    duration: 2.2,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
                 />
               </div>
 
@@ -151,7 +158,7 @@ export default function HeroSection() {
             </motion.span>
           </div>
 
-          <span className="music-wave music-wave-right">
+          <span className="music-wave music-wave-right hidden md:inline-flex">
             <span></span>
             <span></span>
             <span></span>
