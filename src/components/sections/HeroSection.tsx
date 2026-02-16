@@ -50,9 +50,10 @@ export default function HeroSection() {
           initial={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
           animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
           transition={{ duration: 0.9, delay: 0.1, ease: "easeOut" }}
-          className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-4 flex flex-wrap items-center justify-center gap-4 overflow-visible"
+          className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-4 flex flex-col items-center justify-center overflow-visible"
           style={{ lineHeight: 1.3, paddingBottom: "0.15em" }}
         >
+          {/* Waves (no mobile escondo pra não quebrar layout) */}
           <span className="music-wave music-wave-left hidden md:inline-flex">
             <span></span>
             <span></span>
@@ -61,12 +62,12 @@ export default function HeroSection() {
             <span></span>
           </span>
 
-          {/* Logo + texto */}
-          <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6">
+          {/* Logo + texto (span em vez de div pra compatibilidade) */}
+          <span className="inline-flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 max-w-full">
             {/* Logo com ondas + partículas */}
-            <div className="relative">
+            <span className="relative inline-flex">
               {/* Partículas leves */}
-              <div className="absolute -inset-14 pointer-events-none">
+              <span className="absolute -inset-14 pointer-events-none">
                 {particles.map((p, i) => (
                   <motion.span
                     key={i}
@@ -77,10 +78,7 @@ export default function HeroSection() {
                       width: p.size,
                       height: p.size,
                     }}
-                    animate={{
-                      opacity: [0.12, 0.55, 0.12],
-                      scale: [1, 1.35, 1],
-                    }}
+                    animate={{ opacity: [0.12, 0.55, 0.12], scale: [1, 1.35, 1] }}
                     transition={{
                       duration: 3.2,
                       repeat: Infinity,
@@ -89,18 +87,16 @@ export default function HeroSection() {
                     }}
                   />
                 ))}
-              </div>
+              </span>
 
-              {/* Ondas sonoras (alto-falante) */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                {/* Onda 1 */}
-                <motion.div
+              {/* Ondas sonoras */}
+              <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <motion.span
                   className="absolute h-[140px] w-[140px] md:h-[170px] md:w-[170px] rounded-full border border-sky-400/35"
                   animate={{ scale: [0.85, 1.25], opacity: [0.6, 0] }}
                   transition={{ duration: 1.7, repeat: Infinity, ease: "easeOut" }}
                 />
-                {/* Onda 2 (defasada) */}
-                <motion.div
+                <motion.span
                   className="absolute h-[140px] w-[140px] md:h-[170px] md:w-[170px] rounded-full border border-blue-500/25"
                   animate={{ scale: [0.85, 1.35], opacity: [0.55, 0] }}
                   transition={{
@@ -110,21 +106,16 @@ export default function HeroSection() {
                     delay: 0.55,
                   }}
                 />
-                {/* Glow central pulsando */}
-                <motion.div
+                <motion.span
                   className="absolute h-[110px] w-[110px] md:h-[135px] md:w-[135px] rounded-full blur-2xl"
                   style={{
                     background:
                       "radial-gradient(circle, rgba(56,189,248,0.45), rgba(59,130,246,0.18), transparent 70%)",
                   }}
                   animate={{ opacity: [0.35, 0.85, 0.35] }}
-                  transition={{
-                    duration: 2.2,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
+                  transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
                 />
-              </div>
+              </span>
 
               {/* Logo */}
               <motion.img
@@ -140,11 +131,11 @@ export default function HeroSection() {
                 whileHover={{ scale: 1.06 }}
                 transition={{ type: "spring", stiffness: 260, damping: 18 }}
               />
-            </div>
+            </span>
 
             {/* Texto com glow */}
             <motion.span
-              className="gradient-text inline-block"
+              className="gradient-text inline-block text-center break-words max-w-[92vw] md:max-w-none"
               animate={{
                 textShadow: [
                   "0 0 20px hsl(190 85% 43% / 0)",
@@ -156,7 +147,7 @@ export default function HeroSection() {
             >
               ÁgapePlay
             </motion.span>
-          </div>
+          </span>
 
           <span className="music-wave music-wave-right hidden md:inline-flex">
             <span></span>
