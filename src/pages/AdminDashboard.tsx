@@ -61,6 +61,13 @@ import {
 
 /**
  * ============================
+ *  Admin allowlist (igual ao login)
+ * ============================
+ */
+const ALLOWED_ADMINS = ["admin@agapeplay.com"].map((e) => e.toLowerCase());
+
+/**
+ * ============================
  *  Supabase Client (Vite env)
  * ============================
  */
@@ -78,16 +85,13 @@ const supabase =
  * ============================
  */
 const uuid = () => {
-  // 1) Se tiver randomUUID, usa
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
     return crypto.randomUUID();
   }
 
-  // 2) Fallback: gera UUID v4 válido usando getRandomValues
   const bytes = new Uint8Array(16);
   crypto.getRandomValues(bytes);
 
-  // RFC 4122 v4
   bytes[6] = (bytes[6] & 0x0f) | 0x40;
   bytes[8] = (bytes[8] & 0x3f) | 0x80;
 
@@ -229,7 +233,11 @@ export default function AdminDashboard() {
   const [planDialogOpen, setPlanDialogOpen] = useState(false);
 
   const [copiedId, setCopiedId] = useState<string | null>(null);
+
   const [loading, setLoading] = useState(true);
+
+  // ✅ NOVO: evita “piscar/tremor” antes de validar auth
+  const [authChecking, setAuthChecking] = useState(true);
 
   const ensureSupabase = () => {
     if (!supabase) {
@@ -277,12 +285,62 @@ export default function AdminDashboard() {
     }
   };
 
+  /**
+   * ============================
+   *  ✅ Guard de Auth (Supabase)
+   * ============================
+   */
   useEffect(() => {
-    if (localStorage.getItem("agapeplay_auth") !== "true") {
-      navigate("/admin21", { replace: true });
-      return;
-    }
-    loadAll();
+    let alive = true;
+
+    const checkAuth = async () => {
+      try {
+        // legado: se você ainda usar isso em algum lugar, não quebra
+        const legacy = localStorage.getItem("agapeplay_auth") === "true";
+
+        if (!ensureSupabase()) {
+          if (!alive) return;
+          setAuthChecking(false);
+          return;
+        }
+
+        const { data } = await supabase!.auth.getSession();
+        const email = (data.session?.user?.email ?? "").toLowerCase();
+
+        const ok = (data.session && ALLOWED_ADMINS.includes(email)) || legacy;
+
+        if (!alive) return;
+
+        if (!ok) {
+          navigate("/admin21", { replace: true });
+          return;
+        }
+
+        // se está ok, carrega dados
+        await loadAll();
+      } finally {
+        if (alive) setAuthChecking(false);
+      }
+    };
+
+    checkAuth();
+
+    // Se a sessão mudar (login/logout), ajusta na hora e evita “tremor”
+    const { data: sub } = ensureSupabase()
+      ? supabase!.auth.onAuthStateChange((_event, session) => {
+          const email = (session?.user?.email ?? "").toLowerCase();
+          const ok = !!session && ALLOWED_ADMINS.includes(email);
+
+          if (!ok) {
+            navigate("/admin21", { replace: true });
+          }
+        })
+      : ({ data: { subscription: { unsubscribe: () => {} } } } as any);
+
+    return () => {
+      alive = false;
+      sub?.subscription?.unsubscribe?.();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
 
@@ -324,7 +382,7 @@ export default function AdminDashboard() {
     try {
       const client: Client = editingClient.id
         ? ({ ...editingClient, id: editingClient.id } as Client)
-        : ({ ...editingClient, id: uuid() } as Client); // ✅ UUID
+        : ({ ...editingClient, id: uuid() } as Client);
 
       const payload = uiClientToDb(client);
 
@@ -403,7 +461,7 @@ export default function AdminDashboard() {
     try {
       const plan: AdminPlan = editingPlan.id
         ? editingPlan
-        : { ...editingPlan, id: uuid() }; // ✅ UUID
+        : { ...editingPlan, id: uuid() };
 
       const res = await supabase!.from("plans").upsert(uiPlanToDb(plan));
       if (res.error) throw res.error;
@@ -445,7 +503,6 @@ export default function AdminDashboard() {
     if (!ensureSupabase()) return;
 
     try {
-      // garante UUID se algum template vier sem id
       const payload = uiMsgToDb({ ...msg, id: msg.id || uuid() });
 
       const res = await supabase!.from("message_templates").upsert(payload);
@@ -474,7 +531,6 @@ export default function AdminDashboard() {
     toast.success("Mensagem copiada!");
   };
 
-  // ✅ WhatsApp já com a mensagem preenchida
   const openWhatsAppWithMessage = (client: Client) => {
     const phone = (client.whatsapp || "").replace(/\D/g, "");
     if (!phone) {
@@ -482,7 +538,6 @@ export default function AdminDashboard() {
       return;
     }
 
-    // usa o primeiro template salvo; se não tiver, usa um padrão
     const template =
       messages[0]?.template ||
       "Olá {nome}! Seu plano {plano} vence em {dias} dias.";
@@ -519,8 +574,11 @@ export default function AdminDashboard() {
     );
   };
 
-  const logout = () => {
+  const logout = async () => {
     localStorage.removeItem("agapeplay_auth");
+    if (ensureSupabase()) {
+      await supabase!.auth.signOut();
+    }
     navigate("/admin21", { replace: true });
   };
 
@@ -550,6 +608,17 @@ export default function AdminDashboard() {
       color: "text-primary",
     },
   ];
+
+  // ✅ NOVO: tela estável antes de renderizar (mata o “tremor/zerado”)
+  if (authChecking) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <div className="text-sm text-muted-foreground">
+          Verificando acesso...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -658,7 +727,6 @@ export default function AdminDashboard() {
                                 <RefreshCw size={14} className="mr-1" /> Renovar
                               </Button>
 
-                              {/* ✅ WhatsApp com mensagem pronta */}
                               <Button
                                 size="sm"
                                 variant="outline"
@@ -703,7 +771,10 @@ export default function AdminDashboard() {
                 onOpenChange={setClientDialogOpen}
               >
                 <DialogTrigger asChild>
-                  <Button size="sm" onClick={() => setEditingClient(emptyClient)}>
+                  <Button
+                    size="sm"
+                    onClick={() => setEditingClient(emptyClient)}
+                  >
                     <Plus size={16} className="mr-1" /> Novo Cliente
                   </Button>
                 </DialogTrigger>
@@ -873,7 +944,9 @@ export default function AdminDashboard() {
                     </div>
 
                     <Button onClick={saveClient} className="w-full">
-                      {editingClient.id ? "Salvar Alterações" : "Cadastrar Cliente"}
+                      {editingClient.id
+                        ? "Salvar Alterações"
+                        : "Cadastrar Cliente"}
                     </Button>
                   </div>
                 </DialogContent>
@@ -988,7 +1061,10 @@ export default function AdminDashboard() {
                         <Input
                           value={editingPlan.name}
                           onChange={(e) =>
-                            setEditingPlan({ ...editingPlan, name: e.target.value })
+                            setEditingPlan({
+                              ...editingPlan,
+                              name: e.target.value,
+                            })
                           }
                           className="mt-1 bg-background border-border"
                         />
@@ -1016,7 +1092,9 @@ export default function AdminDashboard() {
                           onChange={(e) =>
                             setEditingPlan({
                               ...editingPlan,
-                              features: e.target.value.split("\n").filter(Boolean),
+                              features: e.target.value
+                                .split("\n")
+                                .filter(Boolean),
                             })
                           }
                           rows={5}

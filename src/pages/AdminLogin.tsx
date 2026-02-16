@@ -3,28 +3,47 @@ import { useNavigate } from "react-router-dom";
 import { Music } from "lucide-react";
 import { toast } from "sonner";
 
-import { supabase } from "@/lib/supabaseClient"; // ajuste se seu caminho for outro
+import { supabase } from "@/lib/supabaseClient";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
-const ALLOWED_ADMINS = ["admin@agapeplay.com"]; // pode trocar pelo seu email escolhido
+// ✅ Coloque aqui o(s) email(s) que serão admin
+const ALLOWED_ADMINS = ["admin@agapeplay.com"]; // troque se quiser
 
 export default function AdminLogin() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("admin@agapeplay.com");
+  const [email, setEmail] = useState((ALLOWED_ADMINS[0] ?? "").toLowerCase());
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
 
+  // Se já estiver logado, manda direto pro painel
   useEffect(() => {
+    let alive = true;
+
     (async () => {
-      const { data } = await supabase.auth.getSession();
-      const userEmail = data.session?.user?.email ?? "";
-      if (data.session && ALLOWED_ADMINS.includes(userEmail)) {
-        navigate("/admin21/dashboard", { replace: true });
+      try {
+        const { data } = await supabase.auth.getSession();
+        const userEmail = (data.session?.user?.email ?? "").toLowerCase();
+
+        if (!alive) return;
+
+        if (data.session && ALLOWED_ADMINS.includes(userEmail)) {
+          navigate("/admin21/dashboard", { replace: true });
+          return;
+        }
+      } catch {
+        // ignore
+      } finally {
+        if (alive) setCheckingSession(false);
       }
     })();
+
+    return () => {
+      alive = false;
+    };
   }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -53,7 +72,7 @@ export default function AdminLogin() {
         return;
       }
 
-      const userEmail = data.user?.email ?? "";
+      const userEmail = (data.user?.email ?? "").toLowerCase();
       if (!ALLOWED_ADMINS.includes(userEmail)) {
         await supabase.auth.signOut();
         toast.error("Sem permissão de admin.");
@@ -66,6 +85,15 @@ export default function AdminLogin() {
       setLoading(false);
     }
   };
+
+  // Evita “piscar” enquanto checa sessão
+  if (checkingSession) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-4">
+        <div className="text-sm text-muted-foreground">Carregando...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
@@ -91,7 +119,6 @@ export default function AdminLogin() {
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
                 type="email"
-                placeholder="admin@agapeplay.com"
               />
             </div>
 
@@ -103,7 +130,6 @@ export default function AdminLogin() {
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
                 type="password"
-                placeholder="••••••••"
               />
             </div>
 
