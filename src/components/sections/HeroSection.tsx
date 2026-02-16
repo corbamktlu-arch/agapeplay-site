@@ -50,8 +50,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
           animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
           transition={{ duration: 0.9, delay: 0.1, ease: "easeOut" }}
-          className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-4 flex flex-col items-center justify-center overflow-visible"
-          style={{ lineHeight: 1.3, paddingBottom: "0.15em" }}
+          className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-4 flex flex-col md:flex-row items-center justify-center gap-4 overflow-visible"          style={{ lineHeight: 1.3, paddingBottom: "0.15em" }}
         >
           {/* Waves (no mobile escondo pra não quebrar layout) */}
           <span className="music-wave music-wave-left hidden md:inline-flex">
@@ -63,8 +62,8 @@ export default function HeroSection() {
           </span>
 
           {/* Logo + texto (span em vez de div pra compatibilidade) */}
-          <span className="inline-flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6 max-w-full">
-            {/* Logo com ondas + partículas */}
+            <span className="flex items-center justify-center gap-6">
+              {/* Logo com ondas + partículas */}
             <span className="relative inline-flex">
               {/* Partículas leves */}
               <span className="absolute -inset-14 pointer-events-none">
