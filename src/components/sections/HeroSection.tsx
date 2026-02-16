@@ -160,8 +160,7 @@ className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tigh
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-4 flex flex-wrap items-center justify-center gap-4 overflow-visible"
-        >
+className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-4 flex flex-wrap items-center justify-center gap-4 overflow-visible px-4 lg:px-8"        >
           Rádio Indoor para Negócios
         </motion.p>
 
