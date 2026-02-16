@@ -61,8 +61,8 @@ className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tigh
           </span>
 
           {/* Logo + texto (span em vez de div pra compatibilidade) */}
-            <span className="flex items-center justify-center gap-6">
-              {/* Logo com ondas + partículas */}
+<span className="flex items-center justify-center gap-4 flex-wrap">
+                {/* Logo com ondas + partículas */}
             <span className="relative inline-flex">
               {/* Partículas leves */}
               <span className="absolute -inset-14 pointer-events-none">
@@ -160,7 +160,7 @@ className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tigh
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-lg md:text-xl font-semibold tracking-[0.2em] text-primary/80 uppercase mb-6"
+          className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-4 flex flex-wrap items-center justify-center gap-4 overflow-visible"
         >
           Rádio Indoor para Negócios
         </motion.p>
