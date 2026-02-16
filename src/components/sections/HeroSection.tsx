@@ -49,9 +49,8 @@ export default function HeroSection() {
         <motion.h1
           initial={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
           animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-          transition={{ duration: 0.9, delay: 0.1, ease: "easeOut" }}
-          className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-4 flex flex-col md:flex-row items-center justify-center gap-4 overflow-visible"          style={{ lineHeight: 1.3, paddingBottom: "0.15em" }}
-        >
+          transition={{ duration: 0.9, delay: 0.1, ease: "easeOut" }}  
+className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-4 flex items-center justify-center gap-4 overflow-visible whitespace-nowrap"        >
           {/* Waves (no mobile escondo pra não quebrar layout) */}
           <span className="music-wave music-wave-left hidden md:inline-flex">
             <span></span>
@@ -122,7 +121,7 @@ export default function HeroSection() {
                 alt="ÁgapePlay"
                 className="
                   relative z-10
-                  h-24 w-24 md:h-32 md:w-32
+                  h-16 w-16 sm:h-20 sm:w-20 md:h-32 md:w-32
                   rounded-2xl
                   drop-shadow-[0_0_60px_rgba(56,189,248,0.85)]
                   shadow-2xl
