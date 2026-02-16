@@ -1,32 +1,69 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Lock, Music } from "lucide-react";
+import { Music } from "lucide-react";
 import { toast } from "sonner";
 
+import { supabase } from "@/lib/supabaseClient"; // ajuste se seu caminho for outro
+
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+
+const ALLOWED_ADMINS = ["admin@agapeplay.com"]; // pode trocar pelo seu email escolhido
+
 export default function AdminLogin() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const [email, setEmail] = useState("admin@agapeplay.com");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const ADMIN_PASS = import.meta.env.VITE_ADMIN_PASSWORD as string;
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.auth.getSession();
+      const userEmail = data.session?.user?.email ?? "";
+      if (data.session && ALLOWED_ADMINS.includes(userEmail)) {
+        navigate("/admin21/dashboard", { replace: true });
+      }
+    })();
+  }, [navigate]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!ADMIN_PASS) {
-      toast.error("Senha do admin não configurada no .env");
+    const eMail = email.trim().toLowerCase();
+    if (!eMail || !password) {
+      toast.error("Preencha email e senha.");
       return;
     }
 
-    // Login simples por senha (configurada no .env)
-    if (password === ADMIN_PASS) {
-      localStorage.setItem("agapeplay_auth", "true");
-      navigate("/admin/dashboard");
-    } else {
-      toast.error("Senha inválida.");
+    if (!ALLOWED_ADMINS.includes(eMail)) {
+      toast.error("Este email não tem permissão de admin.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: eMail,
+        password,
+      });
+
+      if (error) {
+        toast.error(error.message || "Falha no login.");
+        return;
+      }
+
+      const userEmail = data.user?.email ?? "";
+      if (!ALLOWED_ADMINS.includes(userEmail)) {
+        await supabase.auth.signOut();
+        toast.error("Sem permissão de admin.");
+        return;
+      }
+
+      toast.success("Login realizado!");
+      navigate("/admin21/dashboard", { replace: true });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -44,42 +81,41 @@ export default function AdminLogin() {
           </p>
         </div>
 
-        <form
-          onSubmit={handleLogin}
-          className="p-8 rounded-2xl bg-card border border-border space-y-4 gradient-border"
-        >
-          <div>
-            <Label htmlFor="login-email">Email</Label>
-            <Input
-              id="login-email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="mt-1 bg-background border-border"
-              placeholder="admin@agapeplay.com"
-            />
-          </div>
-          <div>
-            <Label htmlFor="login-pass">Senha</Label>
-            <Input
-              id="login-pass"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="mt-1 bg-background border-border"
-              placeholder="••••••••"
-            />
-          </div>
-          <Button type="submit" className="w-full glow-sm" size="lg">
-            <Lock className="mr-2" size={16} /> Entrar
-          </Button>
-        </form>
+        <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+                type="email"
+                placeholder="admin@agapeplay.com"
+              />
+            </div>
 
-        <p className="text-xs text-muted-foreground text-center mt-4">
-          Acesso restrito.
-        </p>
+            <div className="space-y-2">
+              <Label htmlFor="password">Senha</Label>
+              <Input
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+                type="password"
+                placeholder="••••••••"
+              />
+            </div>
+
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Entrando..." : "Entrar"}
+            </Button>
+
+            <p className="text-center text-xs text-muted-foreground pt-2">
+              Acesso restrito.
+            </p>
+          </form>
+        </div>
       </div>
     </div>
   );
